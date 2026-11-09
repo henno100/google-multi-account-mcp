@@ -351,6 +351,7 @@ router.get('/oauth/callback', async (req, res, next) => {
     // ── Identity: establish the session, adopt any pre-identity mailboxes ──
     if (state.purpose === 'identity') {
       if (!info.sub) throw new Error('Google did not return a subject identifier for this account');
+      const allowedSignIn = String(process.env.ALLOWED_SIGNIN_EMAILS || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean); if (!allowedSignIn.includes(String(info.email).toLowerCase())) return res.status(403).type('html').send(page('Sign-in refused', '<h1>This Google account may not sign in here</h1>'));
 
       const ownerKey = identity.ownerKeyFor(info.sub);
       const claimed  = await identity.claimLegacyAccounts({ ownerKey, email: info.email });
